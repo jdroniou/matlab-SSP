@@ -1,0 +1,18 @@
+load ../matlab_meshes/mesh1_01.mat
+load ../matlab_meshes/mesh1_02.mat
+load ../matlab_meshes/mesh1_03.mat
+x=0, res=3.16e-16
+Solution computed for bm=1,num_time_steps=16, Avg_iter=3 with Avg_relax=1, res=4.37e-16
+Solution computed for bm=3,num_time_steps=16, Avg_iter=3 with Avg_relax=0, res=4.25e-16
+Solution computed for bm=4,num_time_steps=16, Avg_iter=3 with Avg_relax=0, res=3.68e-16
+Solution computed for bm=2,num_time_steps=16, Avg_iter=4 with Avg_relax=1, res=4.28e-16
+Solution computed for bm=3,num_time_steps=64, Avg_iter=3 with Avg_relax=0, res=7.58e-09
+Solution computed for bm=5,num_time_steps=64, Avg_iter=3 with Avg_relax=0, res=8.07e-09
+Solution computed for bm=2,num_time_steps=64, Avg_iter=3 with Avg_relax=0, res=7.32e-09
+Solution computed for bm=4,num_time_steps=64, Avg_iter=3 with Avg_relax=0, res=7.20e-09
+Solution computed for bm=1,num_time_steps=64, Avg_iter=3 with Avg_relax=1, res=7.12e-09
+Solution computed for bm=5,num_time_steps=256, Avg_iter=3 with Avg_relax=1, res=4.74e-09
+Solution computed for bm=1,num_time_steps=256, Avg_iter=3 with Avg_relax=1, res=4.92e-09
+Solution computed for bm=2,num_time_steps=256, Avg_iter=3 with Avg_relax=1, res=4.90e-09
+Solution computed for bm=3,num_time_steps=256, Avg_iter=3 with Avg_relax=1, res=4.77e-09
+Solution computed for bm=4,num_time_steps=256, Avg_iter=3 with Avg_relax=1, res=4.89e-09
