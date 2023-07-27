@@ -9,4 +9,4 @@ The schemes presented here are analysed in the article
 
 If you use these codes in a publication, please mention this article.
 
-*Note*: The meshes required to run these matlab codes are available in the HHO-Lapl-OM repository, see https://github.com/jdroniou/HHO-Lapl-OM.
+*Note*: Other meshes that can be used to run these matlab codes are available in the HHO-Lapl-OM repository, see https://github.com/jdroniou/HHO-Lapl-OM.
