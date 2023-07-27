@@ -15,7 +15,7 @@
 
 Run the files in the following order: 
 
-* Step 1: Run "MAIN.m" to save the solutions for each time step, for each Brownain motion and for each mesh.
+* Step 1: Run "MAIN_MLP1_SSP.m" to save the solutions for each time step, for each Brownain motion and for each mesh.
 * Step 2 [see also Note 1 below]: Run "compare_time.m" and "compare_meshes.m" to prepare the comparison between norms of solutions.
 * Step 3: Run "Compute_norms.m" to compute the L2 error of: \zeta(u) and \nabla\zeta(u) and L1 error of \Xi(u).
 

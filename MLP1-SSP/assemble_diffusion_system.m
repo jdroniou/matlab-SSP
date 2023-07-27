@@ -1,7 +1,8 @@
 % Assemble the global diffusion matrix
-function [DiffMat] = assemble_diffusion_system(cell_v,cell_n,ncell,nvert,vertex);
+function [DiffMat,F] = assemble_diffusion_system(cell_v,ncell,nvert,vertex);
 
 
+F=zeros(nvert,1);
 %% Initialise vectors for sparse matrix
 % Evaluate number of non-zeros entries (cf below how many times we do "pos=pos+1")
 nz=9*ncell;
@@ -22,13 +23,13 @@ for i=1:ncell
   % Loop over vertices
   for jj=1:3
     jvert = cell_v{i}(jj);%%%
-    if (cell_n{i}(jj)==0)
-      % jj and jj+1 are boundary vertices
-      pos=pos+1;
-			IA(pos)=jvert;
-			JA(pos)=jvert;
-			VA(pos)=1;
-    else
+%     if (cell_n{i}(jj)==0)
+%       % jj and jj+1 are boundary vertices
+%       pos=pos+1;
+% 			IA(pos)=jvert;
+% 			JA(pos)=jvert;
+% 			VA(pos)=1;
+%     else
       % Loop over vertices
       for kk=1:3
         kvert = cell_v{i}(kk);
@@ -37,7 +38,7 @@ for i=1:ncell
         JA(pos) = kvert;
         VA(pos) = Sloc(jj,kk);%It does not overwrite by definition
       end
-    end
+    %end
   end
 end
 

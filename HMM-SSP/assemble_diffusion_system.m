@@ -1,9 +1,6 @@
 % Assemble the global diffusion matrix
 function [DiffMat,source] = assemble_diffusion_system(cell_v,cell_n,cell_e,ncell,nedge,vertex,area,center,cg);
 
-global testcase_diff;
-global bccase;
-
 
 	source=zeros(ncell+nedge,1);
 
@@ -30,13 +27,13 @@ global bccase;
 		% Loop over edges of cell
 		for jj=1:size(cell_e{i},2)
 			j=cell_e{i}(jj);
-			% Dirichlet boundary condition
-			if (cell_n{i}(jj)==0)
-				pos=pos+1;
-				IA(pos)=ncell+j;
-				JA(pos)=ncell+j;
-				VA(pos)=1;
-			end
+% 			% Dirichlet boundary condition
+% 			if (cell_n{i}(jj)==0)
+% 				pos=pos+1;
+% 				IA(pos)=ncell+j;
+% 				JA(pos)=ncell+j;
+% 				VA(pos)=1;
+% 			end
 			
 			% Inner loop over edges of cell
 			for kk=1:size(cell_e{i},2)
@@ -55,7 +52,7 @@ global bccase;
 				VA(pos)=-W(jj,kk);
 
 				% If j is not a Dirichlet boundary edge
-				if (cell_n{i}(jj)~=0)
+% 				if (cell_n{i}(jj)~=0)
 					% Entry edge j-cell
 					pos=pos+1;
 					IA(pos)=ncell+j;
@@ -67,7 +64,7 @@ global bccase;
 					IA(pos)=ncell+j;
 					JA(pos)=ncell+k;
 					VA(pos)=W(jj,kk);
-				end
+% 				end
 			end;
 		end;	
 		

@@ -4,7 +4,7 @@ format longE;
 %Hexagonal meshes
 %meshes={'hexa1_01.mat';'hexa1_02.mat';'hexa1_03.mat';'hexa1_04.mat';'hexa1_05.mat'};
 %Triangular meshes
-meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat';'mesh1_04.mat';'mesh1_05.mat'};
+ meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat';'mesh1_04.mat';'mesh1_05.mat'};
 nbmeshes=size(meshes,1);
 for j=1:(nbmeshes-1);
     for k=(j+1):nbmeshes;

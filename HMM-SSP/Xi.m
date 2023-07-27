@@ -4,7 +4,7 @@
 function xi=Xi(u,zc)%Xi(u)=int(zeta,0,u)
 zcase=zc;
 if (zcase==1)
-    xi=(0.5*u.^2).*(u<=1) + u.*(u>=1).*(u<=2) + 0.5*u.*(u-2).*(u>=2);
+    xi=(0.5*u.^2).*(u<=1) + u.*(u>1).*(u<=2) + 0.5*u.*(u-2).*(u>2);
 elseif (zcase==2)
     xi=(0.25*(u.^4))';
 end
