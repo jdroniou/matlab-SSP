@@ -142,7 +142,7 @@ for imesh=1:nbmeshes
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     parfor bmm=1:nbm
-        timestepping(zc,uc,bmm,dW,aec,Area_CE,int_all,GBE_indices,BE_indices,all_cg,ncell,n,X,Mass,A,cell_e,Ndt(imesh),dt,meshes{imesh},h);
+        timestepping(zc,uc,bmm,W(:,bmm),aec,Area_CE,int_all,GBE_indices,BE_indices,all_cg,ncell,n,X,Mass,A,cell_e,Ndt(imesh),dt,meshes{imesh},h);
 %     %Following error only works in the case of deterministic problem. Also, uncomment the correct source in the "timestepping". 
 %     Sol=load(strcat('solutions/BM',num2str(bmm),'msh',meshes{imesh}(1:8),'tcuz',num2str(uc),num2str(zc)));;
 %     Sol=Sol.usol_idt;
