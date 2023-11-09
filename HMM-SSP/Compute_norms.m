@@ -6,32 +6,56 @@ tic
 ucase=1;
 zcase=1;
 T=1;
-nbm=2;
+nbm=10;
 %r is a parameter to disturbute a portion of Mass from the cells center to the edges
 r=0.5;
 %% Select meshes
 %Hexagonal meshes
 %meshes={'hexa1_01.mat';'hexa1_02.mat';'hexa1_03.mat'};%'hexa1_04.mat';'hexa1_05.mat'};
 %Triangular meshes
-meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat'};%'mesh1_04.mat'};%'mesh1_05.mat'};
+meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat';'mesh1_04.mat'};%'mesh1_05.mat'};
 nbmeshes=size(meshes,1);
 % F is for finer mesh
 F=load(strcat('../matlab_meshes/',meshes{nbmeshes}));
 Fcg=gravity_centers(F.ncell,F.cell_v,F.vertex,F.area);
-F_A=assemble_diffusion_system_forNorms(F.cell_v,F.cell_n,F.cell_e,F.ncell,F.nedge,F.vertex,F.area,F.center,Fcg);
+F_A=assemble_diffusion_system(F.cell_v,F.cell_n,F.cell_e,F.ncell,F.nedge,F.vertex,F.area,F.center,Fcg);
 F_h=max(abs(F.diam));
-F_Ndt=ceil(T/F_h^2);
+F_Ndt=2*round(0.5*T/F_h^2);
 F_dt=T/F_Ndt;
+% Separating boundary and interior unknowns
+ F_aec=zeros(F.nedge,2);
+    F_fbe=zeros(F.nedge,1);
+for i=1:F.ncell
+%         Fnbe=size(F.cell_e{i},2);
+%         aec(F.cell_e{i},:)=(F.vertex(F.cell_v{i}(1:Fnbe),:)+F.vertex(F.cell_v{i}(2:Fnbe+1),:))/2;
+        I=find(F.cell_n{i}==0);
+        if (size(I,2)>0)
+            % Fixing it in order to find the boundary edges
+            F_fbe(F.cell_e{i}(I))=1;
+        end;
+    end
+
+    F_BE_indices=find(F_fbe);
+    F_IE_indices=find(~F_fbe);
+    F_int_all=[1:F.ncell F.ncell+F_IE_indices']';
+    % Global boundary indices
+    F_GBE_indices=F.ncell+F_BE_indices;
 %% Distributing mass among edges
 Farea_edges=zeros(F.nedge,1);
 for i=1:F.ncell
     Fnbe=size(F.cell_e{i},2);
     Frs=ones(Fnbe,1);
-
+     rs=ones(Fnbe,1);
+        FJ=find(ismember(F.cell_e{i},F_BE_indices));
+        FI=size(FJ,2);
+        if FI>0
+            Frs(FJ)=0;
+            Fnbe=Fnbe-FI;
+        end   
     Farea_edges(F.cell_e{i})=Farea_edges(F.cell_e{i})+((1-r)*F.area(i)).*Frs/Fnbe;
 end;
 Farea_cells=r.*F.area;
-F_area=[Farea_cells;Farea_edges];
+F_Area_CE=[Farea_cells;Farea_edges];
 
 
 Fst_znorm=zeros(nbm,1);
@@ -56,20 +80,45 @@ for imesh=1:nbmeshes-1
     str = sprintf('Loading %s and %s\n',meshes{imesh},meshes{nbmeshes});
     forkprint(fid,str);
     Ccg=gravity_centers(C.ncell,C.cell_v,C.vertex,C.area);
-    C_A=assemble_diffusion_system_forNorms(C.cell_v,C.cell_n,C.cell_e,C.ncell,C.nedge,C.vertex,C.area,C.center,Ccg);
+    C_A=assemble_diffusion_system(C.cell_v,C.cell_n,C.cell_e,C.ncell,C.nedge,C.vertex,C.area,C.center,Ccg);
+      % Separating boundary and interior unknowns
+     C_aec=zeros(C.nedge,2);
+    C_fbe=zeros(C.nedge,1);
+for i=1:C.ncell
+%         Cnbe=size(C.cell_e{i},2);
+%         aec(C.cell_e{i},:)=(C.vertex(C.cell_v{i}(1:Cnbe),:)+C.vertex(C.cell_v{i}(2:Cnbe+1),:))/2;
+        I=find(C.cell_n{i}==0);
+        if (size(I,2)>0)
+            % Fixing it in order to find the boundary edges
+            C_fbe(C.cell_e{i}(I))=1;
+        end;
+    end
+
+    C_BE_indices=find(C_fbe);
+    C_IE_indices=find(~C_fbe);
+    C_int_all=[1:C.ncell C.ncell+C_IE_indices']';
+    % Global boundary indices
+    C_GBE_indices=C.ncell+C_BE_indices;
     Carea_edges=zeros(C.nedge,1);
     for i=1:C.ncell
         Cnbe=size(C.cell_e{i},2);
         Crs=ones(Cnbe,1);
+        CJ=find(ismember(C.cell_e{i},C_BE_indices));
+        CI=size(CJ,2);
+        if CI>0
+            Crs(CJ)=0;
+            Cnbe=Cnbe-CI;
+        end
         Carea_edges(C.cell_e{i})=Carea_edges(C.cell_e{i})+((1-r)*C.area(i)).*Crs/Cnbe;
     end;
     Carea_cells=r.*C.area;
-    C_area=[Carea_cells;Carea_edges];
+    C_Area_CE=[Carea_cells;Carea_edges];
     C_h(imesh)=max(abs(C.diam));
     %for imesh=1:nbmeshes
-    C_Ndt=ceil(T/C_h(imesh)^2);
+    C_Ndt=2*round(0.5*T/C_h(imesh)^2);
     C_dt=T/C_Ndt;
     C_dof(imesh)=C.nedge;
+  
 
     Gst_eznorm=zeros(nbm,1);
     st_eznorm=zeros(nbm,1);
@@ -85,11 +134,18 @@ for imesh=1:nbmeshes-1
         forkprint(fid,str);
         %Loading solutions of the coarsive mesh and the solutions on the
         %finest possible mesh as a reference solution
-        CS=load(strcat('solutions/BM',num2str(bmm),'msh',meshes{imesh}(1:8),'tcuz',num2str(ucase)));
-        FS=load(strcat('solutions/BM',num2str(bmm),'msh',meshes{nbmeshes}(1:8),'tcuz',num2str(ucase)));
+        CS=load(strcat('solutions/BM',num2str(bmm),'msh',meshes{imesh}(1:8),'tcuz',num2str(ucase),num2str(zcase)));
+        FS=load(strcat('solutions/BM',num2str(bmm),'msh',meshes{nbmeshes}(1:8),'tcuz',num2str(ucase),num2str(zcase)));
 
         CZU=zetau(CS.usol_idt,zcase);
         FZU=zetau(FS.usol_idt,zcase);
+
+        Csol=CS.usol_idt;
+        Fsol=FS.usol_idt;
+        CZU=Csol;
+        FZU=Fsol;
+        CZU(C_int_all,:)=zetau(Csol(C_int_all,:),zcase);
+        FZU(F_int_all,:)=zetau(Fsol(F_int_all,:),zcase);
 
 
         %% Time interpolation
@@ -111,26 +167,31 @@ for imesh=1:nbmeshes-1
             GFznorm(idt)=F_Z'*F_A*F_Z;
             Gerr_znorm(idt)=(errZ'*F_A*errZ);
             % Computing L2 norm of zeta
-            Fznorm(idt)=sum(F_area.*abs(F_Z).^2);
-            err_znorm(idt)=sum(F_area.*abs(errZ).^2);
+            Fznorm(idt)=sum(F_Area_CE.*abs(F_Z).^2);
+            err_znorm(idt)=sum(F_Area_CE.*abs(errZ).^2);
         end
         %Computing individual norms on coarse meshes
         parfor idt=2:C_Ndt+1
             C_Z=CZU(:,idt)
-            Cznorm(idt)=sum(C_area.*abs(C_Z).^2);
+            Cznorm(idt)=sum(C_Area_CE.*abs(C_Z).^2);
             GCznorm(idt)=C_Z'*C_A*C_Z;
 
         end
 
         CU_X=Xi(CS.usol_idt,zcase);
-        FUX=Xi(FS.usol_idt(:,F_Ndt+1),zcase);
+        FUX=Xi(FS.usol_idt,zcase);
         ICTX=interpolate_time(CU_X,F_Ndt,meshes{imesh},meshes{nbmeshes});
-        ICTS_TX=interpolate_meshXi(ICTX(:,F_Ndt+1),FUX,Cmesh,Fmesh);
-        errX=FUX-ICTS_TX;
+        ICTS_TX=interpolate_meshXi(ICTX(:,F_Ndt+1),FUX(:,F_Ndt+1),Cmesh,Fmesh);
+        errX=FUX(:,F_Ndt+1)-ICTS_TX;
         
-        st_eXi(bmm)=(sum(F_area.*abs(errX)));
-        Fst_Xi(bmm)=sum(F_area.*FUX);
-        Cst_Xi(bmm)=sum(C_area.*CU_X(:,C_Ndt+1));
+%         st_eXi(bmm)=(sum(F_Area_CE(F_int_all).*abs(errX(F_int_all))));
+%         Fst_Xi(bmm)=sum(F_Area_CE(F_int_all).*FUX(F_int_all,F_Ndt+1));
+%         Cst_Xi(bmm)=sum(C_Area_CE(C_int_all).*CU_X(C_int_all,C_Ndt+1));
+
+        st_eXi(bmm)=(sum(F_Area_CE.*abs(errX)));
+        Fst_Xi(bmm)=sum(F_Area_CE.*FUX(:,F_Ndt+1));
+        Cst_Xi(bmm)=sum(C_Area_CE.*CU_X(:,C_Ndt+1));
+
 
         Fst_znorm(bmm)=sum(Fznorm);
         Cst_znorm(bmm)=sum(Cznorm);

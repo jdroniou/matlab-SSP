@@ -11,26 +11,40 @@ Zu=zeros(size(u));
             D2Z=zeros(size(u));
         end
    end
-   if (zcase==1)
+      if (zcase==1)
        %Zu:=Zeta(u)={u for u<=1, 1 for 1=<u<=2, u-1 for u>=2
          Zu=u.*(u<=1)+(u>1).*(u<=2)+(u-1).*(u>2);
            if (nargout>1)
-                 DZ=(u<=1)+(u>2);
+                 DZ=(u<1)+(u>2);
                if (nargout>2)
                    %Diff Zeta''(u)=0 no-change in D2Z
                end
            end
-  
-
    elseif (zcase==2)
-       Zu=u.^3;
+       %Zu:=Zeta(u)={u for u<=0, 0 for 0=<u<=, u-1 for u>=1
+         Zu=u.*(u<=0)+(0).*(u>=0).*(u<=1)+(u-1).*(u>=1);
+           if (nargout>1)
+                 DZ=(u<0)+(u>1);
+               if (nargout>2)
+                   %Diff Zeta''(u)=0 no-change in D2Z
+               end
+           end
+
+   elseif (zcase==3)
+       Zu=u.^2;
        if (nargout>1)
-           DZ=3*u.^2;
+           DZ=2*u;
            if (nargout>2)
-               D2Z=6*u;
+               D2Z=2;
            end
        end
-   elseif (zcase==3)
+   elseif (zcase==4)
        Zu=u;
+        if (nargout>1)
+           DZ=1;
+           if (nargout>2)
+               D2Z=0;
+           end
+       end
    end
 end

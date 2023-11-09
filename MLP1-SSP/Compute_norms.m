@@ -6,10 +6,10 @@ tic
 ucase=1;
 zcase=1;
 T=1;
-nbm=1;
+nbm=10;
 
 %% Select meshes
-meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat'};%'mesh1_04.mat'};%'mesh1_05.mat'};%'mesh1_06.mat'};
+meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat';'mesh1_04.mat'};%'mesh1_05.mat'};%'mesh1_06.mat'};
 nbmeshes=size(meshes,1);
 % F stands for the finer mesh
 F=load(strcat('../matlab_meshes/',meshes{nbmeshes}));
@@ -17,7 +17,7 @@ F=load(strcat('../matlab_meshes/',meshes{nbmeshes}));
 F_A=assemble_diffusion_system(F.cell_v,F.ncell,F.nvert,F.vertex);
 
 F_h=max(abs(F.diam));
-F_Ndt=ceil(T/F_h^2);
+F_Ndt=2*round(0.5*T/F_h^2);
 F_dt=T/F_Ndt;
 
  %% Finding boundary vertices
@@ -59,7 +59,7 @@ for imesh=1:nbmeshes-1
     C=load(strcat('../matlab_meshes/',meshes{imesh}));
     C_A=assemble_diffusion_system(C.cell_v,C.ncell,C.nvert,C.vertex);
     C_h(imesh)=max(abs(C.diam));
-    C_Ndt=ceil(T/C_h(imesh)^2);
+    C_Ndt=2*round(0.5*T/C_h(imesh)^2);
     C_dt=T/C_Ndt;
     C_dof(imesh)=C.nvert;
     %% Finding boundary vertices

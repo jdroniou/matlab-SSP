@@ -24,7 +24,7 @@ ucase=1;
 zcase=1;
 
 
-nbm=1;
+nbm=10;
 t0=0.1;
 CB=0.005;
 %t0=.5;
@@ -42,7 +42,7 @@ T=1;
 % Sequence of meshes over which we want to run the scheme
 %%
 % The meshes are available at https://github.com/jdroniou/HHO-Lapl-OM
-meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat'};%'mesh1_04.mat';'mesh1_05.mat'};%'mesh1_06.mat'};
+meshes={'mesh1_01.mat';'mesh1_02.mat';'mesh1_03.mat';'mesh1_04.mat'};%'mesh1_05.mat';'mesh1_06.mat'};
 
 nbmeshes=size(meshes,1);
 Lp1_error=zeros(nbmeshes,1);
@@ -56,7 +56,22 @@ str = sprintf('t0=%f\n',t0);%sprintf('m=%f, t0=%f\n',m,t0);
 forkprint(fid,str);
 %%%fclose(fid);
 %Ndt(1) = ceil(T/dt_initial);
-
+%% Brownian motions for the finest mesh to be used for all other coarse meshes
+%Reminder: we are using dt=h^2;
+%Constructing Brownian motion (Finacial toolbox is  required)
+fine_mesh=matfile(strcat('../matlab_meshes/',meshes{nbmeshes}));
+h(nbmeshes)=max(abs(fine_mesh.diam));
+Ndt(nbmeshes)=2*round(0.5*T/h(nbmeshes)^2);
+dt=T/Ndt(nbmeshes);
+WF=zeros(Ndt(nbmeshes),nbm);
+     for bmm=1:nbm
+         [Path,Time,dW]=simulate(bm(0,1),Ndt(nbmeshes));
+         WF(:,bmm)=sqrt(dt)*dW;
+     end
+     save(strcat('BM/BM_mesh',num2str(nbmeshes)),'WF');
+     clear WF;
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     %
 for imesh=1:nbmeshes
     % Load mesh
     loadmesh=strcat('load ../matlab_meshes/',meshes{imesh});
@@ -83,7 +98,7 @@ for imesh=1:nbmeshes
     nbvert=size(B_indices,1);
     dualarea=compute_dualarea(area,ncell,nvert,cell_v,B_indices);
     % Time steps
-    Ndt(imesh)=ceil(T/h(imesh)^2);
+    Ndt(imesh)=2*round(0.5*T/h(imesh)^2);
     %     if (imesh>1)
     %         Ndt(imesh) = Ndt(imesh-1)*2;
     %     end;
@@ -118,13 +133,18 @@ for imesh=1:nbmeshes
 
 
     %% Loading brownian motion
-    %%%%Constructing Brownian motion (Finacial toolbox is  required)
     W=zeros(Ndt(imesh),nbm);
-    for bmm=1:nbm
-        [Path,Time,dW]=simulate(bm(0,1),Ndt(imesh));
-        W(:,bmm)=dW;
-    end
+  load(strcat('BM/BM_mesh',num2str(nbmeshes)),'WF');
+      if imesh<nbmeshes
+        for i=1:Ndt(imesh)
+            db=floor(Ndt(nbmeshes)/Ndt(imesh));
+            W(i,:)=sum(WF([(db*(i-1)+1):(i*db)],:),1);
 
+        end
+        else
+        W=WF;
+     end
+    clear WF
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     parfor bmm=1:nbm
         timestepping(zcase,ucase,bmm,W(:,bmm),ncell,nvert,vertex,area,cg,cell_v,X,Mass,A,B_indices,I_indices,imesh,Ndt(imesh),dt,bdry_vert,meshes{imesh},h);
